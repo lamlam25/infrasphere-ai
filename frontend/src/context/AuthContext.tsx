@@ -8,6 +8,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, fullName: string, role?: string) => Promise<void>;
   logout: () => void;
   switchUser: (role: 'manager' | 'analyst' | 'admin') => Promise<void>;
 }
@@ -42,6 +43,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('infrasphere_user', JSON.stringify(data.user));
   };
 
+  const register = async (email: string, password: string, fullName: string, role: string = 'analyst') => {
+    const data = await authApi.register({
+      email,
+      password,
+      full_name: fullName,
+      role,
+    });
+    setToken(data.access_token);
+    setUser(data.user);
+    localStorage.setItem('infrasphere_token', data.access_token);
+    localStorage.setItem('infrasphere_user', JSON.stringify(data.user));
+  };
+
   const logout = () => {
     setUser(null);
     setToken(null);
@@ -66,6 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated: !!user,
         isLoading,
         login,
+        register,
         logout,
         switchUser,
       }}

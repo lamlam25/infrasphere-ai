@@ -38,3 +38,36 @@ async def test_invalid_login_fails():
             json={"email": "admin@infrasphere.bd", "password": "WrongPassword!"},
         )
     assert response.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_register_user_success_and_duplicate_conflict():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
+        # Register new operator
+        response = await ac.post(
+            "/api/v1/auth/register",
+            json={
+                "email": "field_lead@infrasphere.bd",
+                "password": "SecurePassword123!",
+                "full_name": "Field Commander Rafiq",
+                "role": "field_coordinator",
+            },
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "access_token" in data
+        assert data["user"]["email"] == "field_lead@infrasphere.bd"
+        assert data["user"]["role"] == "field_coordinator"
+
+        # Try registering same email again -> Conflict 409
+        dup_resp = await ac.post(
+            "/api/v1/auth/register",
+            json={
+                "email": "field_lead@infrasphere.bd",
+                "password": "AnotherPassword!",
+                "full_name": "Duplicate Rafiq",
+                "role": "field_coordinator",
+            },
+        )
+        assert dup_resp.status_code == 409

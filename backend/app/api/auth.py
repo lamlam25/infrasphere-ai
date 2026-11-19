@@ -11,13 +11,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.core.database import get_db
-from app.core.exceptions import UnauthorizedError
+from app.core.exceptions import ConflictError, UnauthorizedError, ValidationError
 from app.core.security import (
     create_access_token,
     get_current_user,
+    hash_password,
     verify_password,
 )
-from app.models.user import User
+from app.models.user import User, UserRole
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -38,11 +39,65 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class RegisterRequest(BaseModel):
+    email: EmailStr
+    password: str
+    full_name: str
+    role: str = "analyst"
+
+
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     expires_in: int
     user: Optional[UserResponse] = None
+
+
+@router.post("/register", response_model=TokenResponse)
+async def register(
+    payload: RegisterRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    email_clean = str(payload.email).lower().strip()
+    existing = await db.execute(select(User).where(User.email == email_clean))
+    if existing.scalar_one_or_none():
+        raise ConflictError(f"User with email '{email_clean}' already exists")
+
+    if len(payload.password) < 6:
+        raise ValidationError("Password must be at least 6 characters")
+
+    try:
+        user_role = UserRole(payload.role)
+    except ValueError:
+        user_role = UserRole.analyst
+
+    new_user = User(
+        email=email_clean,
+        password_hash=hash_password(payload.password),
+        full_name=payload.full_name.strip() or "National Operator",
+        role=user_role,
+        is_active=True,
+    )
+    db.add(new_user)
+    await db.commit()
+    await db.refresh(new_user)
+
+    expires = timedelta(minutes=settings.access_token_expire_minutes)
+    token = create_access_token({"sub": new_user.id, "email": new_user.email, "role": new_user.role.value}, expires)
+
+    return TokenResponse(
+        access_token=token,
+        token_type="bearer",
+        expires_in=settings.access_token_expire_minutes * 60,
+        user=UserResponse(
+            id=new_user.id,
+            email=new_user.email,
+            full_name=new_user.full_name,
+            role=new_user.role.value,
+            is_active=new_user.is_active,
+            organization_id=new_user.organization_id,
+        ),
+    )
 
 
 

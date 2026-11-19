@@ -47,47 +47,59 @@ export const OverviewPage: React.FC = () => {
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
-    if (!mapInstanceRef.current) {
-      const map = L.map(mapContainerRef.current).setView([24.2, 90.5], 7);
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; CARTO',
-        maxZoom: 18,
-      }).addTo(map);
-      mapInstanceRef.current = map;
+    // Clean up existing map instance or dangling leaflet ID
+    if (mapInstanceRef.current) {
+      try {
+        mapInstanceRef.current.remove();
+      } catch (e) {
+        // ignore
+      }
+      mapInstanceRef.current = null;
     }
 
-    const map = mapInstanceRef.current;
+    if ((mapContainerRef.current as any)._leaflet_id) {
+      delete (mapContainerRef.current as any)._leaflet_id;
+    }
 
-    // Clear previous markers
-    map.eachLayer((layer) => {
-      if (layer instanceof L.Marker) {
-        map.removeLayer(layer);
-      }
+    // Initialize map centered on Bangladesh
+    const map = L.map(mapContainerRef.current, {
+      center: [23.85, 90.35],
+      zoom: 7,
+      zoomControl: true,
+      scrollWheelZoom: false,
     });
+
+    // High reliability OpenStreetMap standard tile layer
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors',
+      maxZoom: 18,
+    }).addTo(map);
+
+    mapInstanceRef.current = map;
 
     const createIcon = (color: string) =>
       L.divIcon({
         className: 'custom-leaflet-icon',
-        html: `<div style="background-color: ${color}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 8px ${color};"></div>`,
+        html: `<div style="background-color: ${color}; width: 14px; height: 14px; border-radius: 50%; border: 2px solid #ffffff; box-shadow: 0 0 8px ${color};"></div>`,
         iconSize: [14, 14],
         iconAnchor: [7, 7],
       });
 
     const redIcon = createIcon('#ef4444');
     const orangeIcon = createIcon('#f97316');
-    const blueIcon = createIcon('#3b82f6');
+    const blueIcon = createIcon('#2563eb');
 
-    // Add incidents
-    incidents.slice(0, 30).forEach((inc) => {
+    // Add incidents markers
+    incidents.slice(0, 35).forEach((inc) => {
       const isCritical = inc.severity === 'critical';
       const marker = L.marker([inc.latitude, inc.longitude], {
         icon: isCritical ? redIcon : orangeIcon,
       }).addTo(map);
 
       marker.bindPopup(`
-        <div style="font-family: sans-serif; font-size: 11px; color: #0f172a; max-width: 200px;">
+        <div style="font-family: sans-serif; font-size: 11px; color: #0f172a; max-width: 220px;">
           <div style="font-weight: bold; color: #0284c7;">${inc.id}: ${inc.district}</div>
-          <div style="margin-top: 2px; color: #334155;">${inc.title}</div>
+          <div style="margin-top: 3px; color: #334155; font-weight: 500;">${inc.title}</div>
           <div style="margin-top: 4px; font-weight: bold; text-transform: uppercase; color: ${
             isCritical ? '#dc2626' : '#ea580c'
           };">Severity: ${inc.severity}</div>
@@ -107,17 +119,30 @@ export const OverviewPage: React.FC = () => {
       const marker = L.marker([lat, lon], { icon: blueIcon }).addTo(map);
       marker.bindPopup(`
         <div style="font-family: sans-serif; font-size: 11px; color: #0f172a;">
-          <div style="font-weight: bold;">${stn.station_name} (${stn.district})</div>
+          <div style="font-weight: bold; color: #1e40af;">${stn.station_name} (${stn.district})</div>
           <div style="margin-top: 3px;">Water Level: <strong>${stn.level.toFixed(2)}${stn.unit}</strong></div>
           <div style="color: ${isOver ? '#dc2626' : '#64748b'}; font-weight: bold;">
-            Danger Level: ${stn.danger_level.toFixed(2)}${stn.unit} ${isOver ? '(ALERT)' : ''}
+            Danger Level: ${stn.danger_level.toFixed(2)}${stn.unit} ${isOver ? '(ALERT - ABOVE DANGER)' : ''}
           </div>
         </div>
       `);
     });
 
+    // Invalidate size once DOM container is laid out
+    const timer1 = setTimeout(() => map.invalidateSize(), 150);
+    const timer2 = setTimeout(() => map.invalidateSize(), 600);
+
     return () => {
-      // Keep map alive or clean up
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      if (mapInstanceRef.current) {
+        try {
+          mapInstanceRef.current.remove();
+        } catch (e) {
+          // ignore
+        }
+        mapInstanceRef.current = null;
+      }
     };
   }, [incidents, stations]);
 
@@ -220,7 +245,8 @@ export const OverviewPage: React.FC = () => {
 
           <div
             ref={mapContainerRef}
-            className="h-[480px] rounded-xl overflow-hidden border border-slate-800 relative z-0"
+            className="w-full rounded-xl overflow-hidden border border-slate-800 relative z-0"
+            style={{ height: '480px', minHeight: '480px', width: '100%', display: 'block' }}
           />
         </div>
 

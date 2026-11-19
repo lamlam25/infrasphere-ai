@@ -34,6 +34,10 @@ export const authApi = {
     const res = await api.post('/auth/login', { email, password });
     return res.data;
   },
+  register: async (data: { email: string; password: string; full_name: string; role?: string }) => {
+    const res = await api.post('/auth/register', data);
+    return res.data;
+  },
 };
 
 export const incidentsApi = {

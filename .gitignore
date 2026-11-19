@@ -39,6 +39,8 @@ dist-ssr/
 .env
 .env.local
 .env.*.local
+*.db
+backend/data/*.db
 data/*.db
 data/qdrant/
 data/uploads/*
