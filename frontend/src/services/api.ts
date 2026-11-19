@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+const apiBase = import.meta.env.VITE_API_BASE_URL || (isLocalhost ? '' : 'https://infrasphere-backend.onrender.com');
 const api = axios.create({
   baseURL: `${apiBase}/api/v1`,
   headers: {
