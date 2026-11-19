@@ -1,0 +1,20 @@
+{"id": "Q-01", "question": "What is the trigger threshold for road submergence closure?", "expected_sources": ["DOC-FLD-01"], "language": "en"}
+{"id": "Q-02", "question": "When must vehicular movement be suspended according to flood guidelines?", "expected_sources": ["DOC-FLD-01"], "language": "en"}
+{"id": "Q-03", "question": "What water depth over carriageway requires light traffic suspension?", "expected_sources": ["DOC-FLD-01"], "language": "en"}
+{"id": "Q-04", "question": "What upazilas in Sunamganj are vulnerable to flash floods?", "expected_sources": ["DOC-FLD-01"], "language": "en"}
+{"id": "Q-05", "question": "How often should culverts in haor basins be inspected?", "expected_sources": ["DOC-MNT-01"], "language": "en"}
+{"id": "Q-06", "question": "What maintenance equipment is used when culvert siltation exceeds 40%?", "expected_sources": ["DOC-MNT-01"], "language": "en"}
+{"id": "Q-07", "question": "When was Sunamganj Sadar Bridge inspection recorded as completed?", "expected_sources": ["DOC-MNT-01"], "language": "en"}
+{"id": "Q-08", "question": "What was the extent of damage during the June 2022 Sunamganj flood?", "expected_sources": ["DOC-HST-01"], "language": "en"}
+{"id": "Q-09", "question": "How many sections of the R280 regional highway were washed out in 2022?", "expected_sources": ["DOC-HST-01"], "language": "en"}
+{"id": "Q-10", "question": "What discrepancy exists regarding the Sunamganj Sadar Bridge inspection date?", "expected_sources": ["DOC-HST-01", "DOC-MNT-01"], "language": "en"}
+{"id": "Q-11", "question": "What is the critical stage trigger above danger level?", "expected_sources": ["DOC-FLD-01"], "language": "en"}
+{"id": "Q-12", "question": "What action is required within 60 minutes of road submergence?", "expected_sources": ["DOC-FLD-01"], "language": "en"}
+{"id": "Q-13", "question": "What is the pre-monsoon inspection month for culverts?", "expected_sources": ["DOC-MNT-01"], "language": "en"}
+{"id": "Q-14", "question": "What survey was recommended for the dry season for Sunamganj Sadar Bridge?", "expected_sources": ["DOC-MNT-01"], "language": "en"}
+{"id": "Q-15", "question": "What is the capital city of France?", "expected_sources": [], "language": "en", "is_unsupported": true}
+{"id": "Q-16", "question": "What is the current stock price of Google?", "expected_sources": [], "language": "en", "is_unsupported": true}
+{"id": "Q-17", "question": "Who won the 2022 FIFA World Cup?", "expected_sources": [], "language": "en", "is_unsupported": true}
+{"id": "Q-18", "question": "How to make Italian pasta from scratch?", "expected_sources": [], "language": "en", "is_unsupported": true}
+{"id": "Q-19", "question": "বন্যার সময় সড়কে পানির উচ্চতা কত হলে যান চলাচল বন্ধ করতে হয়?", "expected_sources": ["DOC-FLD-01"], "language": "bn"}
+{"id": "Q-20", "question": "সুনামগঞ্জ সদর ব্রিজের পরিদর্শন নিয়ে কী অসঙ্গতি রয়েছে?", "expected_sources": ["DOC-HST-01"], "language": "bn"}

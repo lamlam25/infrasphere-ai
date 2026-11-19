@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: infrasphere-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=production
+      - SQLITE_DB_PATH=data/infrasphere.db
+      - JWT_SECRET=infrasphere_cloudcamp_hackathon_super_secret_key_2026
+      - OPENAI_API_BASE=http://localhost:8000/mock/v1
+    volumes:
+      - backend-data:/app/data
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: infrasphere-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  backend-data:
